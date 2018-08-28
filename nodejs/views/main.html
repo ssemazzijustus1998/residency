@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <link href="styles.css" rel="stylesheet" type="text/css">
+    <link href="bootstrap.css" rel="stylesheet" type="text/css">
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <div class="row">
+       <div id="form" class="col-md-6">
+         <p> PLEASE FILL THE FORM BELOW</p>
+           <form data-func="add" id="data">
+             <input required class="Name form-control" type="text" placeholder="Enter Name Please">
+             <input required class="position form-control" type="text" placeholder="Enter position Please">
+             <input required class="office form-control" type="text" placeholder="Enter office Please">
+             <input required class="salary form-control" type="text" placeholder="Enter Salary Please">
+             <button id="submit" class="btn-info btn">SUBMIT</button>
+             <button id="restart" class="btn-info btn">RESET</button>
+           </form>
+         </div>
+            <div id="output"class="col-md-6">
+              <div class="row">
+
+             </div>
+            </div>
+         </div>
+           <script src="/jquery-3.3.1.js"></script>
+           <script>
+
+              $(document).ready(function() {
+                getAll();
+                $('#output .row').on('click','button.update', function(e){
+                  e.preventDefault();
+
+                  var e_id = $(this).attr('data-id');
+                  getBy(e_id);
+                  $('form#data').attr('data-func',"update");
+                  $('form#data').attr('data-id',e_id);
+                });
+                $("#data").submit(function(event){
+                  var job = $(this).attr('data-func');
+                  event.preventDefault();
+                  var name = $("#data .name").val();
+                  var position = $("#data .position").val();
+                  var office = $("#data .office").val();
+                  var salary = $("#data .salary").val();
+                  var data ={
+                    "name":name,
+                    "position":position,
+                    "office":office,
+                    "salary":salary
+                  };
+
+                  //console.log(name, position, office, salary);
+                  if(job ==='add'){
+                    save(data);
+                  }
+                  else if(job ==='update'){
+                    var data_id = $('#data').attr('data-id');
+                    update(data, data_id);
+                  }
+
+                  //$("#output").html("<p>Name: "+name+"</p><p>Position: "+position+"</p><p>Office: "+office+"</p><p>Salary: "+salary+"</p>");
+                });
+                function save(data){
+                    var settings = {
+                      "type":"POST",
+
+                      "data":data,
+                      "url":"/employees",
+                      "success":function(response){
+                        //$('#data')[0].reset();
+                        console.log(response);
+                                                  //getAll();
+                        alert("employee has been saved");
+                      }
+                    };
+
+                    alert(JSON.stringify(settings));
+                    $.ajax(settings);
+                }
+                function update(data,id){
+                    var settings = {
+                      "type":"PUT",
+                      //"dataType":"json",
+                      "data":data,
+                      "url":"/employees/"+id,
+                      "success":function(response){
+                        $('#data')[0].reset();
+                        $('#data').attr('data-func','add');
+                        $('#data').attr('data-id','');
+
+                        alert("employee has been updated");
+                        getAll();
+                      }
+                    };
+                    $.ajax(settings);
+                }
+                function getAll(){
+                    var settings = {
+                      "type":"GET",
+                      "dataType":"json",
+                      "url":"/employees",
+                      "success":function(response){
+                        var xdata="";
+                        $("#output .row").html("");
+                        $.each(response,function(key, value){
+                          xdata +="<p>Name: "+value.name+"</p><p>Position: "+value.position+"</p>"+
+                          "<p>Office: "+value.office+"</p><p>Salary: "+value.salary+"</p><br/>"+
+                          "<button data-id="+value._id+" class='btn btn-md btn-primary update' >UPDATE</button>"+"<button class='btn btn-md btn-danger delete'>DELETE</button>"+
+                          "<hr/>";
+                        });
+                        $("#output .row").html(xdata);
+                      }
+                    };
+                    $.ajax(settings);
+                }
+                function getBy(id){
+                    var settings = {
+                      "type":"GET",
+                      "dataType":"json",
+                      "url":"/employees/"+id,
+                      "success":function(response){
+                        console.log(response);
+                        $('#data')[0].reset();
+                        $("#data .name").val(response.name);
+                        $("#data .position").val(response.position);
+                        $("#data .office").val(response.office);
+                        $("#data .salary").val(response.salary);
+                      }
+
+                    };
+                    $.ajax(settings);
+                }
+              });
+                </script>
+      </body>
+</html>

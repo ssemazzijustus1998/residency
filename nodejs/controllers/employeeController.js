@@ -30,11 +30,21 @@ router.post("/",(req, res) =>{
       office:req.body.office,
       salary:req.body.salary,
   });
+  if(!req.body.name){
+    return res.status(200).json({msg:"name is required"});
+  }else if (!req.body.position) {
+    return res.status(200).json({msg:"Position is required"});
+  }else if (!req.body.office) {
+    return res.status(200).json({msg:"office is required"});
+  }else if (!req.body.salary) {
+    return res.status(200).json({msg:"salary is required"});
+  }else{
+    emp.save((err, doc)=>{
+      if(!err) {res.send(doc);}
+      else{console.log("Error in Employees save :"+ JSON.stringify(err, undefined,2));}
+    });
+  }
 
-  emp.save((err, doc)=>{
-    if(!err) {res.send(doc);}
-    else{console.log("Error in Employees save :"+ JSON.stringify(err, undefined,2));}
-  });
 });
 
 //put operation
@@ -44,8 +54,8 @@ router.put("/:id",(req , res)=> {
      return res.status(400).send("No record with given id :${req.params.id}");
 
         var emp = {
-          name: req.body.name,
-          position: req.body.position,
+          name:req.body.name,
+          position:req.body.position,
           office:req.body.office,
           salary:req.body.salary,
       };
@@ -67,7 +77,5 @@ router.delete("/:id",(req , res)=>{
       else{console.log("Error in Employee delete :"+ JSON.stringify(err, undefined,2));}
    });
 });
-
-
 
 module.exports = router;
